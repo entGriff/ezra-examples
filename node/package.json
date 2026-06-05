@@ -1,0 +1,9 @@
+{
+  "name": "ezra-node-example",
+  "version": "1.0.0",
+  "description": "EZRA usage example - Node.js",
+  "type": "module",
+  "dependencies": {
+    "redis": "^4.6.0"
+  }
+}

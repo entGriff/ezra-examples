@@ -1,0 +1,46 @@
+services:
+
+  ezra:
+    image: ${EZRA_IMAGE:-ghcr.io/entgriff/ezra:latest}
+    ports:
+      - "${EZRA_PORT:-42002}:42002"
+    volumes:
+      - ezra-data:/data
+    environment:
+      EZRA_DATA_DIR: /data
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 42002"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+      start_period: 10s
+
+  worker:
+    build: .
+    command: python worker.py
+    environment:
+      EZRA_HOST: ezra
+      EZRA_PORT: "42002"
+      EZRA_QUEUE: ${EZRA_QUEUE:-tasks}
+      IDLE_TIMEOUT: ${IDLE_TIMEOUT:-30}
+      NACK_MODE: ${NACK_MODE:-immediate}
+    depends_on:
+      ezra:
+        condition: service_healthy
+    restart: on-failure
+
+  producer:
+    build: .
+    command: python producer.py
+    environment:
+      EZRA_HOST: ezra
+      EZRA_PORT: "42002"
+      EZRA_QUEUE: ${EZRA_QUEUE:-tasks}
+      TASK_COUNT: ${TASK_COUNT:-50}
+    depends_on:
+      ezra:
+        condition: service_healthy
+    restart: "no"
+
+volumes:
+  ezra-data:
