@@ -5,7 +5,7 @@ services:
     ports:
       - "${EZRA_PORT:-42002}:42002"
     volumes:
-      - ezra-data:/data
+      - ./data:/data
     environment:
       EZRA_DATA_DIR: /data
     healthcheck:
@@ -22,7 +22,9 @@ services:
       EZRA_HOST: ezra
       EZRA_PORT: "42002"
       EZRA_QUEUE: ${EZRA_QUEUE:-tasks}
-      IDLE_TIMEOUT: ${IDLE_TIMEOUT:-30}
+      IDLE_TIMEOUT: ${IDLE_TIMEOUT:-3}
+      SPEED: ${SPEED:-5}
+      NUM_WORKERS: ${NUM_WORKERS:-10}
       NACK_MODE: ${NACK_MODE:-immediate}
     depends_on:
       ezra:
@@ -41,6 +43,3 @@ services:
       ezra:
         condition: service_healthy
     restart: "no"
-
-volumes:
-  ezra-data:
