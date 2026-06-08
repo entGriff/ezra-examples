@@ -20,13 +20,11 @@ import json
 import math
 import os
 import random
-import sys
 
 import redis
 
 
 QUEUE = os.getenv("EZRA_QUEUE", "tasks")
-GROUP = "workers"
 
 
 def task_duration(seed: int) -> float:
@@ -40,13 +38,6 @@ def main() -> None:
     count = int(os.getenv("TASK_COUNT", "50"))
 
     client = redis.Redis(host=host, port=port, decode_responses=True, protocol=3)
-
-    try:
-        client.xgroup_create(QUEUE, GROUP, id="$", mkstream=True)
-    except redis.ResponseError as exc:
-        if "BUSYGROUP" not in str(exc):
-            print(f"[producer] xgroup_create failed: {exc}", file=sys.stderr)
-            sys.exit(1)
 
     will_fail_total = 0
     print(f"[producer] pushing {count} tasks to {host}:{port}/{QUEUE}")

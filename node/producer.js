@@ -22,7 +22,6 @@ const host  = process.env.EZRA_HOST  || 'localhost'
 const port  = parseInt(process.env.EZRA_PORT  || '42002', 10)
 const queue = process.env.EZRA_QUEUE || 'tasks'
 const count = parseInt(process.env.TASK_COUNT || '50', 10)
-const GROUP = 'workers'
 
 // Deterministic log-uniform duration in [0.1, 10] seconds.
 // Same seed always produces the same duration, so runs are reproducible.
@@ -35,12 +34,6 @@ function taskDuration(seed) {
 
 const client = createClient({ socket: { host, port } })
 await client.connect()
-
-try {
-  await client.xGroupCreate(queue, GROUP, '$', { MKSTREAM: true })
-} catch (err) {
-  if (!err.message.includes('BUSYGROUP')) throw err
-}
 
 let willFailTotal = 0
 console.log(`[producer] pushing ${count} tasks to ${host}:${port}/${queue}`)
